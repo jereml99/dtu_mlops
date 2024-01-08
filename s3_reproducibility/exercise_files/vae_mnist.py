@@ -3,8 +3,7 @@
 A simple implementation of Gaussian MLP Encoder and Decoder trained on MNIST
 """
 import os
-from omegaconf import OmegaConf
-
+from hydra import compose, initialize
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
@@ -15,8 +14,9 @@ from torchvision.datasets import MNIST
 from torchvision.utils import save_image
 
 # Model Hyperparameters
+initialize(config_path=".", job_name="vae_mnist")
+config = compose(config_name="config.yaml")
 
-config = OmegaConf.load('s3_reproducibility/exercise_files/config.yaml')
 dataset_path = config.hyperparameters.dataset_path
 batch_size = config.hyperparameters.batch_size
 x_dim = config.hyperparameters.x_dim
@@ -34,17 +34,6 @@ torch.backends.cudnn.deterministic = True
 dataset_path = "~/datasets"
 cuda = True
 DEVICE = torch.device("cuda" if cuda else "cpu")
-batch_size = 100
-x_dim = 784
-hidden_dim = 400
-latent_dim = 20
-lr = 1e-3
-epochs = 20
-
-# For reproducibility
-torch.manual_seed(42)
-torch.backends.cudnn.deterministic = True
-
 
 # Data loading
 mnist_transform = transforms.Compose([transforms.ToTensor()])
