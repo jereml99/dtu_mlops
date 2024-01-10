@@ -53,7 +53,7 @@ class Encoder(nn.Module):
 
     def reparameterization(self, mean, var):
         """Reparameterization trick to sample z values."""
-        epsilon = torch.randn(*var.shape)
+        epsilon = torch.randn(*var.shape).to(DEVICE)
         z = mean + var * epsilon
         return z
 
@@ -64,7 +64,7 @@ class Decoder(nn.Module):
     def __init__(self, latent_dim, hidden_dim, output_dim):
         super(Decoder, self).__init__()
         self.FC_hidden = nn.Linear(latent_dim, hidden_dim)
-        self.FC_output = nn.Linear(latent_dim, output_dim)
+        self.FC_output = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x):
         """Forward pass of the decoder module."""
@@ -100,7 +100,7 @@ BCE_loss = nn.BCELoss()
 def loss_function(x, x_hat, mean, log_var):
     """Elbo loss function."""
     reproduction_loss = nn.functional.binary_cross_entropy(x_hat, x, reduction="sum")
-    kld = -0.5 * torch.sum(1 + log_var - mean.pow(2) - log_var.exp())
+    kld = -0.5 * torch.sum(1 + log_var - mean.pow(2) - log_var)
     return reproduction_loss + kld
 
 
@@ -113,6 +113,7 @@ for epoch in range(epochs):
     for batch_idx, (x, _) in enumerate(train_loader):
         if batch_idx % 100 == 0:
             print(batch_idx)
+        optimizer.zero_grad()
         x = x.view(batch_size, x_dim)
         x = x.to(DEVICE)
 

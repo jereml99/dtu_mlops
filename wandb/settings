@@ -1,0 +1,5 @@
+[default]
+entity = mlops_24
+project = my-awesome-project
+base_url = https://api.wandb.ai
+
